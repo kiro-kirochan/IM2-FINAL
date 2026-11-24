@@ -17,17 +17,19 @@ if (is_post()) {
     }
 }
 
-page_start('Add Customer', 'customers', ['sub' => 'Name is enough for walk-ins. Delivery customers also need a contact number, street and barangay.',
-    'actions' => head_link('customers/', '← All customers', 'btn')]); ?>
-<section class="card" style="max-width:640px">
+page_start('Add Customer', 'customers', [
+    'sub' => 'Name is sufficient for walk-ins. Delivery customers also require a contact number, street, and barangay.',
+    'actions' => head_link('customers/', '← All customers', 'secondary outline btn-sm'),
+]); ?>
+<article class="card-medium">
   <form method="post" novalidate>
     <?= csrf_field() ?>
     <?php render_customer_fields($v, $err, zones()); ?>
     <div class="form-actions">
-      <button class="btn btn-primary">Save customer</button>
-      <button class="btn btn-aqua" name="next" value="order">Save &amp; start an order</button>
-      <a class="btn" href="<?= e(url('customers/')) ?>">Cancel</a>
+      <button type="submit">Save customer</button>
+      <button type="submit" class="secondary" name="next" value="order">Save &amp; start an order</button>
+      <a role="button" class="secondary outline" href="<?= e(url('customers/')) ?>">Cancel</a>
     </div>
   </form>
-</section>
+</article>
 <?php page_end();

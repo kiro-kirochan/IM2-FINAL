@@ -55,24 +55,29 @@ if (is_post()) {
 }
 
 $CD = builder_data($customers, $lines, $old['order_type']);
-page_start('New Order', 'orders', ['sub' => 'Pick the customer, add items, then take payment or issue an unpaid claim stub.',
-    'scripts' => ['assets/js/order-form.js'], 'actions' => head_link('orders/', '← All orders', 'btn')]); ?>
+page_start('New Order', 'orders', [
+    'sub' => 'Pick the customer, add items, then take payment or issue an unpaid claim stub.',
+    'scripts' => ['assets/js/order-form.js'],
+    'actions' => head_link('orders/', '← All orders', 'secondary outline btn-sm'),
+]); ?>
 <script>window.CD = <?= json_encode($CD, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) ?>;</script>
 
 <?php if ($error): ?><div class="flash flash-error"><?= e($error) ?></div><?php endif; ?>
 
 <form method="post" id="orderForm" novalidate>
   <?= csrf_field() ?>
-  <div class="grid g2">
-    <section class="card">
-      <h2>Who and how</h2>
-      <div class="lbl" style="margin-bottom:6px">Order type</div>
-      <div class="choice">
+  <div class="grid-split">
+    <article>
+      <header><h2>Customer &amp; payment</h2></header>
+
+      <label>Order type</label>
+      <div class="segmented" role="radiogroup" aria-label="Order type">
         <label><input type="radio" name="order_type" value="Walk-in" <?= $old['order_type'] === 'Walk-in' ? 'checked' : '' ?>><span>Walk-in</span></label>
         <label><input type="radio" name="order_type" value="Delivery" <?= $old['order_type'] === 'Delivery' ? 'checked' : '' ?>><span>Delivery</span></label>
       </div>
 
-      <label class="f"><span class="req">Customer</span>
+      <label>
+        <span class="req">Customer</span>
         <select name="customer_id" id="customer_id">
           <?php foreach ($customers as $c): ?>
             <option value="<?= (int)$c['customer_id'] ?>" <?= (int)$old['customer_id'] === (int)$c['customer_id'] ? 'selected' : '' ?>>
@@ -80,42 +85,63 @@ page_start('New Order', 'orders', ['sub' => 'Pick the customer, add items, then 
             </option>
           <?php endforeach; ?>
         </select>
-        <small>Not listed? <a href="<?= e(url('customers/add.php')) ?>" target="_blank">Add a customer</a>, then reload this page.</small>
+        <small class="muted">Not listed? <a href="<?= e(url('customers/add.php')) ?>" target="_blank">Add a customer</a>, then reload this page.</small>
       </label>
-      <div class="note-box" id="deliveryWarn" hidden>
-        ⚠ This customer has no contact number, street or barangay yet. Delivery needs all three —
+
+      <div class="callout callout-warn" id="deliveryWarn" hidden>
+        This customer has no contact number, street, or barangay yet. Delivery requires all three —
         <a href="<?= e(url('customers/')) ?>" target="_blank">update the customer</a> first.
       </div>
 
-      <label class="f"><span>Notes <small>(landmark, gate color, special request)</small></span>
-        <input name="notes" maxlength="255" value="<?= e($old['notes']) ?>"></label>
+      <label>
+        <span>Notes <small class="muted">(landmark, gate color, special request)</small></span>
+        <input name="notes" maxlength="255" value="<?= e($old['notes']) ?>">
+      </label>
 
-      <h2 style="margin-top:18px">Payment</h2>
-      <div class="cols-2">
-        <label class="f"><span>Payment</span>
+      <hr>
+
+      <div class="grid">
+        <label>
+          <span>Payment status</span>
           <select name="pay_option" id="payOption">
             <option value="unpaid"  <?= $old['pay_option'] === 'unpaid'  ? 'selected' : '' ?>>Unpaid — issue claim stub</option>
             <option value="full"    <?= $old['pay_option'] === 'full'    ? 'selected' : '' ?>>Paid in full</option>
             <option value="partial" <?= $old['pay_option'] === 'partial' ? 'selected' : '' ?>>Partial payment</option>
-          </select></label>
-        <label class="f" id="modeBox"><span>Payment mode</span>
-          <select name="mode"><option <?= $old['mode'] === 'Cash' ? 'selected' : '' ?>>Cash</option><option <?= $old['mode'] === 'GCash' ? 'selected' : '' ?>>GCash</option></select></label>
+          </select>
+        </label>
+        <label id="modeBox">
+          <span>Payment mode</span>
+          <select name="mode">
+            <option <?= $old['mode'] === 'Cash' ? 'selected' : '' ?>>Cash</option>
+            <option <?= $old['mode'] === 'GCash' ? 'selected' : '' ?>>GCash</option>
+          </select>
+        </label>
       </div>
-      <div class="cols-2" id="partialBox" hidden>
-        <label class="f"><span>Amount received (₱)</span><input type="number" step="0.01" min="0.01" name="amount" id="amount" value="<?= e($old['amount']) ?>"></label>
-        <div class="f"><span class="lbl">Remaining balance</span><b id="balanceText" style="font:700 22px var(--head)">₱0.00</b></div>
-      </div>
-      <p class="muted small" id="balanceLine" style="margin:0">An unpaid order prints a claim stub that clearly says <b>“not proof of payment”</b>.</p>
-    </section>
 
-    <section class="card">
-      <h2>Items</h2>
-      <?php render_item_builder($products); ?>
-      <div class="form-actions" style="margin-top:16px">
-        <button class="btn btn-primary">Save order &amp; issue slip</button>
-        <a class="btn" href="<?= e(url('orders/')) ?>">Cancel</a>
+      <div class="grid" id="partialBox" hidden>
+        <label>
+          <span>Amount received (₱)</span>
+          <input type="number" step="0.01" min="0.01" name="amount" id="amount" value="<?= e($old['amount']) ?>">
+        </label>
+        <div>
+          <span class="small muted" style="display:block;margin-bottom:0.35rem">Remaining balance</span>
+          <strong id="balanceText" style="font-size:1.25rem;font-variant-numeric:tabular-nums">₱0.00</strong>
+        </div>
       </div>
-    </section>
+
+      <p class="muted small" id="balanceLine" style="margin-bottom:0">
+        An unpaid order prints a claim stub marked <b>“not proof of payment”</b>.
+      </p>
+    </article>
+
+    <article>
+      <header><h2>Order items</h2></header>
+      <?php render_item_builder($products); ?>
+      <div class="form-actions" style="margin-top:1rem">
+        <button type="submit">Save order &amp; issue slip</button>
+        <a role="button" class="secondary outline" href="<?= e(url('orders/')) ?>">Cancel</a>
+      </div>
+    </article>
   </div>
 </form>
 <?php page_end();

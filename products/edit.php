@@ -16,14 +16,23 @@ if (is_post()) {
         try {
             q('UPDATE products SET product_name = ?, container_type = ?, service_type = ?, current_unit_price = ? WHERE product_code = ?',
               [$clean['product_name'], $clean['container_type'], $clean['service_type'], $clean['current_unit_price'], $p['product_code']]);
-            flash('ok', 'Product updated. Existing orders keep their old price.');
+            flash('ok', 'Product updated. Existing orders retain their original price.');
             redirect('products/');
         } catch (PDOException $e) { flash('error', db_message($e)); }
     }
 }
-page_start('Edit Product', 'products', ['sub' => $p['product_name'], 'actions' => head_link('products/', '← All products', 'btn')]); ?>
-<section class="card" style="max-width:640px"><form method="post" novalidate>
-  <?= csrf_field() ?><?php render_product_fields($v, $err, false); ?>
-  <div class="form-actions"><button class="btn btn-primary">Save changes</button><a class="btn" href="<?= e(url('products/')) ?>">Cancel</a></div>
-</form></section>
+page_start('Edit Product', 'products', [
+    'sub' => $p['product_name'],
+    'actions' => head_link('products/', '← All products', 'secondary outline btn-sm'),
+]); ?>
+<article class="card-medium">
+  <form method="post" novalidate>
+    <?= csrf_field() ?>
+    <?php render_product_fields($v, $err, false); ?>
+    <div class="form-actions">
+      <button type="submit">Save changes</button>
+      <a role="button" class="secondary outline" href="<?= e(url('products/')) ?>">Cancel</a>
+    </div>
+  </form>
+</article>
 <?php page_end();

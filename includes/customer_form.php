@@ -25,22 +25,34 @@ function customer_validate(array $in): array
 
 function render_customer_fields(array $v, array $err, array $zones): void
 { ?>
-  <label class="f"><span class="req">Full name</span>
-    <input name="full_name" maxlength="100" value="<?= e($v['full_name'] ?? '') ?>" required autofocus>
-    <?php if (isset($err['full_name'])): ?><span class="err"><?= e($err['full_name']) ?></span><?php endif; ?></label>
-  <label class="f"><span>Contact number <small>(needed for delivery)</small></span>
-    <input name="contact_number" maxlength="20" placeholder="09XX XXX XXXX" value="<?= e($v['contact_number'] ?? '') ?>">
-    <?php if (isset($err['contact_number'])): ?><span class="err"><?= e($err['contact_number']) ?></span><?php endif; ?></label>
-  <div class="cols-2">
-    <label class="f"><span>House no. / Street / Purok <small>(needed for delivery)</small></span>
-      <input name="street" maxlength="100" placeholder="Purok 3, Rizal St." value="<?= e($v['street'] ?? '') ?>"></label>
-    <label class="f"><span>Barangay <small>(sets the delivery fee)</small></span>
-      <select name="zone_id">
-        <option value="">— none (walk-in only) —</option>
+  <label>
+    <span class="req">Full name</span>
+    <input name="full_name" maxlength="100" value="<?= e($v['full_name'] ?? '') ?>" <?= isset($err['full_name']) ? 'aria-invalid="true"' : '' ?> required autofocus>
+    <?php if (isset($err['full_name'])): ?><small class="field-error"><?= e($err['full_name']) ?></small><?php endif; ?>
+  </label>
+
+  <label>
+    <span>Contact number <small class="muted">(required for delivery)</small></span>
+    <input name="contact_number" maxlength="20" placeholder="09XX XXX XXXX" value="<?= e($v['contact_number'] ?? '') ?>" <?= isset($err['contact_number']) ? 'aria-invalid="true"' : '' ?>>
+    <?php if (isset($err['contact_number'])): ?><small class="field-error"><?= e($err['contact_number']) ?></small><?php endif; ?>
+  </label>
+
+  <div class="grid">
+    <label>
+      <span>House no. / Street / Purok <small class="muted">(for delivery)</small></span>
+      <input name="street" maxlength="100" placeholder="Purok 3, Rizal St." value="<?= e($v['street'] ?? '') ?>">
+    </label>
+    <label>
+      <span>Barangay <small class="muted">(sets delivery fee)</small></span>
+      <select name="zone_id" <?= isset($err['zone_id']) ? 'aria-invalid="true"' : '' ?>>
+        <option value="">— None (walk-in only) —</option>
         <?php foreach ($zones as $z): ?>
-          <option value="<?= (int)$z['zone_id'] ?>" <?= (string)($v['zone_id'] ?? '') === (string)$z['zone_id'] ? 'selected' : '' ?>><?= e($z['barangay']) ?> (+<?= peso($z['delivery_fee']) ?>)</option>
+          <option value="<?= (int)$z['zone_id'] ?>" <?= (string)($v['zone_id'] ?? '') === (string)$z['zone_id'] ? 'selected' : '' ?>>
+            <?= e($z['barangay']) ?> (+<?= peso($z['delivery_fee']) ?>)
+          </option>
         <?php endforeach; ?>
       </select>
-      <?php if (isset($err['zone_id'])): ?><span class="err"><?= e($err['zone_id']) ?></span><?php endif; ?></label>
+      <?php if (isset($err['zone_id'])): ?><small class="field-error"><?= e($err['zone_id']) ?></small><?php endif; ?>
+    </label>
   </div>
 <?php }

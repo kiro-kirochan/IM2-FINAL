@@ -39,4 +39,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 5. Auto-hide success messages
   document.querySelectorAll('.flash-ok').forEach((f) => setTimeout(() => (f.style.display = 'none'), 6000));
+
+  // 6. Close open dropdown menus on Escape
+  document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Escape') {
+      document.querySelectorAll('details.dropdown[open]').forEach((d) => d.removeAttribute('open'));
+    }
+  });
 });

@@ -21,7 +21,7 @@ if (is_post()) {
     } else {
         try {
             db()->beginTransaction();
-            q('CALL sp_record_payment(?, ?, ?, @receipt)', [$orderNo, (float)$amount, $mode]);   // stored procedure
+            q('CALL sp_record_payment(?, ?, ?, @receipt)', [$orderNo, (float)$amount, $mode]);
             $receipt = q_val('SELECT @receipt');
             db()->commit();
             flash('ok', "Payment of " . peso($amount) . " recorded · receipt $receipt.");
@@ -33,26 +33,35 @@ if (is_post()) {
     }
 }
 
-page_start('Record Payment', 'orders', ['sub' => order_label($orderNo) . ' · ' . $o['customer_name'],
-    'actions' => head_link('orders/view.php?order_no=' . $orderNo, '← Back to slip', 'btn')]); ?>
+page_start('Record Payment', 'orders', [
+    'sub' => order_label($orderNo) . ' · ' . $o['customer_name'],
+    'actions' => head_link('orders/view.php?order_no=' . $orderNo, '← Back to slip', 'secondary outline btn-sm'),
+]); ?>
 <?php if ($error): ?><div class="flash flash-error"><?= e($error) ?></div><?php endif; ?>
-<section class="card" style="max-width:520px">
-  <dl class="facts" style="margin-bottom:16px">
+
+<article class="card-narrow">
+  <header><h2>Payment summary</h2></header>
+  <dl class="facts" style="margin-bottom:1.1rem">
     <dt>Order total</dt><dd><?= peso($o['order_total']) ?></dd>
     <dt>Already paid</dt><dd><?= peso($o['total_paid']) ?></dd>
-    <dt>Balance due</dt><dd><b style="font:700 22px var(--head)"><?= peso($o['balance']) ?></b></dd>
+    <dt>Balance due</dt><dd><strong style="font-size:1.25rem;font-variant-numeric:tabular-nums"><?= peso($o['balance']) ?></strong></dd>
   </dl>
+  <hr>
   <form method="post">
     <?= csrf_field() ?><input type="hidden" name="order_no" value="<?= $orderNo ?>">
-    <label class="f"><span class="req">Amount received (₱)</span>
-      <input type="number" name="amount" step="0.01" min="0.01" max="<?= e($o['balance']) ?>" value="<?= e($amount) ?>" required autofocus></label>
-    <div class="lbl" style="margin-bottom:6px">Payment mode</div>
-    <div class="choice">
+    <label>
+      <span class="req">Amount received (₱)</span>
+      <input type="number" name="amount" step="0.01" min="0.01" max="<?= e($o['balance']) ?>" value="<?= e($amount) ?>" required autofocus>
+    </label>
+    <label>Payment mode</label>
+    <div class="segmented" role="radiogroup" aria-label="Payment mode">
       <label><input type="radio" name="mode" value="Cash" <?= $mode === 'Cash' ? 'checked' : '' ?>><span>Cash</span></label>
       <label><input type="radio" name="mode" value="GCash" <?= $mode === 'GCash' ? 'checked' : '' ?>><span>GCash</span></label>
     </div>
-    <div class="form-actions"><button class="btn btn-primary">Save payment &amp; print receipt</button>
-      <a class="btn" href="<?= e(url('orders/view.php?order_no=' . $orderNo)) ?>">Cancel</a></div>
+    <div class="form-actions">
+      <button type="submit">Save payment &amp; view receipt</button>
+      <a role="button" class="secondary outline" href="<?= e(url('orders/view.php?order_no=' . $orderNo)) ?>">Cancel</a>
+    </div>
   </form>
-</section>
+</article>
 <?php page_end();

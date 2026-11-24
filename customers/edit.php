@@ -22,14 +22,21 @@ if (is_post()) {
     }
 }
 
-page_start('Edit Customer', 'customers', ['sub' => $c['full_name'], 'actions' => head_link('customers/', '← All customers', 'btn')]); ?>
-<section class="card" style="max-width:640px">
+page_start('Edit Customer', 'customers', [
+    'sub' => $c['full_name'],
+    'actions' => head_link('customers/', '← All customers', 'secondary outline btn-sm'),
+]); ?>
+<article class="card-medium">
   <form method="post" novalidate>
     <?= csrf_field() ?><input type="hidden" name="customer_id" value="<?= $id ?>">
     <?php render_customer_fields($v, $err, zones()); ?>
-    <p class="note-box">Changing the barangay only affects <b>new</b> delivery orders — old orders keep the fee they were charged.</p>
-    <div class="form-actions"><button class="btn btn-primary">Save changes</button>
-      <a class="btn" href="<?= e(url('customers/')) ?>">Cancel</a></div>
+    <div class="callout">
+      Changing the barangay only affects <b>new</b> delivery orders — past orders retain the fee they were charged.
+    </div>
+    <div class="form-actions">
+      <button type="submit">Save changes</button>
+      <a role="button" class="secondary outline" href="<?= e(url('customers/')) ?>">Cancel</a>
+    </div>
   </form>
-</section>
+</article>
 <?php page_end();

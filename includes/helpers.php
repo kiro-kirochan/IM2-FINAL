@@ -39,15 +39,15 @@ function status_badge(string $s): string
     $cls = match (true) {
         in_array($s, ['Released', 'Delivered'], true) => 'b-ok',
         $s === 'Cancelled', $s === 'Delivery Unsuccessful' => 'b-bad',
-        in_array($s, ['Out for Delivery', 'Ready for Pickup', 'To be Delivered'], true) => 'b-aqua',
-        default => 'b-sun',
+        in_array($s, ['Out for Delivery', 'Ready for Pickup', 'To be Delivered'], true) => 'b-info',
+        default => 'b-warn',
     };
     return '<span class="badge ' . $cls . '">' . e($s) . '</span>';
 }
 function pay_badge(string $status, $balance = null): string
 {
-    $map = ['Paid' => ['b-ok', 'Paid'], 'Partial' => ['b-sun', 'Partial'], 'Unpaid' => ['b-bad', 'Unpaid']];
-    [$cls, $txt] = $map[$status] ?? ['b-sun', $status];
+    $map = ['Paid' => ['b-ok', 'Paid'], 'Partial' => ['b-warn', 'Partial'], 'Unpaid' => ['b-bad', 'Unpaid']];
+    [$cls, $txt] = $map[$status] ?? ['b-warn', $status];
     $extra = ($balance !== null && $status !== 'Paid') ? ' · ' . peso($balance) : '';
     return '<span class="badge ' . $cls . '">' . e($txt . $extra) . '</span>';
 }
@@ -104,15 +104,15 @@ function set_deleted(string $entity, string $id, int $flag): bool
     }
 }
 
-// Small POST form used for Archive / Restore buttons
-function action_form(string $path, array $fields, string $label, string $class = 'btn btn-sm', ?string $confirm = null): string
+// Small POST form used for Archive / Restore / status buttons
+function action_form(string $path, array $fields, string $label, string $class = 'secondary outline btn-xs', ?string $confirm = null): string
 {
     $h = '<form method="post" action="' . e(url($path)) . '" class="inline"'
        . ($confirm ? ' data-confirm="' . e($confirm) . '"' : '') . '>' . csrf_field();
     foreach ($fields as $k => $v) {
         $h .= '<input type="hidden" name="' . e($k) . '" value="' . e($v) . '">';
     }
-    return $h . '<button class="' . e($class) . '">' . e($label) . '</button></form>';
+    return $h . '<button type="submit" class="' . e($class) . '">' . e($label) . '</button></form>';
 }
 
 // ---- Lookup lists used by several pages ------------------------------

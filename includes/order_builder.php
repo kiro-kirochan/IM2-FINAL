@@ -26,17 +26,19 @@ function builder_data(array $customers, array $lines, string $type, float $fee =
 
 function render_item_builder(array $activeProducts): void
 { ?>
-  <div class="lbl" style="margin-bottom:6px">Order items</div>
-  <div class="adder">
+  <label for="product">Add item</label>
+  <fieldset role="group" class="order-adder">
     <select id="product" aria-label="Product">
       <?php foreach ($activeProducts as $p): ?>
         <option value="<?= e($p['product_code']) ?>"><?= e($p['product_name']) ?> — <?= peso($p['current_unit_price']) ?></option>
       <?php endforeach; ?>
     </select>
     <input id="addQty" type="number" min="1" max="999" value="1" aria-label="Quantity">
-    <button type="button" id="addItem" class="btn btn-aqua">+ Add</button>
-  </div>
+    <button type="button" id="addItem" class="secondary">+ Add</button>
+  </fieldset>
+
   <ul class="lines" id="lines"></ul>
+
   <div class="totals">
     <div><span>Items subtotal</span><span id="subtotalText">₱0.00</span></div>
     <div id="feeRow" hidden><span>Delivery fee</span><span id="feeText">₱0.00</span></div>

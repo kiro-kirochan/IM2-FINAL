@@ -26,12 +26,15 @@ function db(): PDO
         );
     } catch (PDOException $e) {
         http_response_code(500);
-        echo '<body style="font-family:sans-serif;max-width:560px;margin:60px auto">'
+        echo '<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><title>Database Error · ClearDrop</title>'
+           . '<style>body{font:15px/1.6 system-ui,sans-serif;background:#f8fafc;color:#1e293b;margin:0;padding:48px 16px}'
+           . '.box{max-width:540px;margin:0 auto;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:24px 28px}'
+           . 'h2{margin:0 0 12px;color:#0f172a}code{background:#f1f5f9;padding:2px 6px;border-radius:4px}</style></head><body><div class="box">'
            . '<h2>Cannot reach the database</h2>'
            . '<p>1. Start <b>Apache</b> and <b>MySQL</b> in XAMPP.<br>'
            . '2. In phpMyAdmin, import <code>database/cleardrop.sql</code>.<br>'
            . '3. Check <code>includes/config.php</code> (or your <code>config.local.php</code>).</p>'
-           . '<p style="color:#888">' . htmlspecialchars($e->getMessage()) . '</p></body>';
+           . '<p style="color:#64748b;font-size:13px;margin-bottom:0">' . htmlspecialchars($e->getMessage()) . '</p></div></body></html>';
         exit;
     }
     return $pdo;

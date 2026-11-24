@@ -19,22 +19,42 @@ function product_validate(array $in, bool $isNew): array
 
 function render_product_fields(array $v, array $err, bool $isNew): void
 { ?>
-  <div class="cols-2">
-    <label class="f"><span class="req">Product code</span>
-      <input name="product_code" maxlength="20" value="<?= e($v['product_code'] ?? '') ?>" <?= $isNew ? 'required autofocus' : 'readonly' ?> style="text-transform:uppercase">
-      <?php if (!$isNew): ?><small>The code cannot change because past orders point to it.</small><?php endif; ?>
-      <?php if (isset($err['product_code'])): ?><span class="err"><?= e($err['product_code']) ?></span><?php endif; ?></label>
-    <label class="f"><span class="req">Price per unit (₱)</span>
-      <input type="number" step="0.01" min="0" name="current_unit_price" value="<?= e($v['current_unit_price'] ?? '') ?>" required>
-      <?php if (isset($err['current_unit_price'])): ?><span class="err"><?= e($err['current_unit_price']) ?></span><?php endif; ?></label>
+  <div class="grid">
+    <label>
+      <span class="req">Product code</span>
+      <input name="product_code" maxlength="20" value="<?= e($v['product_code'] ?? '') ?>" <?= $isNew ? 'required autofocus' : 'readonly' ?> <?= isset($err['product_code']) ? 'aria-invalid="true"' : '' ?> style="text-transform:uppercase">
+      <?php if (!$isNew): ?><small class="muted">The code cannot change because past orders reference it.</small><?php endif; ?>
+      <?php if (isset($err['product_code'])): ?><small class="field-error"><?= e($err['product_code']) ?></small><?php endif; ?>
+    </label>
+    <label>
+      <span class="req">Price per unit (₱)</span>
+      <input type="number" step="0.01" min="0" name="current_unit_price" value="<?= e($v['current_unit_price'] ?? '') ?>" <?= isset($err['current_unit_price']) ? 'aria-invalid="true"' : '' ?> required>
+      <?php if (isset($err['current_unit_price'])): ?><small class="field-error"><?= e($err['current_unit_price']) ?></small><?php endif; ?>
+    </label>
   </div>
-  <label class="f"><span class="req">Product name</span>
-    <input name="product_name" maxlength="100" value="<?= e($v['product_name'] ?? '') ?>" required <?= $isNew ? '' : 'autofocus' ?>>
-    <?php if (isset($err['product_name'])): ?><span class="err"><?= e($err['product_name']) ?></span><?php endif; ?></label>
-  <div class="cols-2">
-    <label class="f"><span class="req">Container</span>
-      <select name="container_type"><?php foreach (CONTAINER_TYPES as $t): ?><option <?= ($v['container_type'] ?? '') === $t ? 'selected' : '' ?>><?= e($t) ?></option><?php endforeach; ?></select></label>
-    <label class="f"><span class="req">Service</span>
-      <select name="service_type"><?php foreach (SERVICE_TYPES as $t): ?><option <?= ($v['service_type'] ?? '') === $t ? 'selected' : '' ?>><?= e($t) ?></option><?php endforeach; ?></select></label>
+
+  <label>
+    <span class="req">Product name</span>
+    <input name="product_name" maxlength="100" value="<?= e($v['product_name'] ?? '') ?>" <?= isset($err['product_name']) ? 'aria-invalid="true"' : '' ?> required <?= $isNew ? '' : 'autofocus' ?>>
+    <?php if (isset($err['product_name'])): ?><small class="field-error"><?= e($err['product_name']) ?></small><?php endif; ?>
+  </label>
+
+  <div class="grid">
+    <label>
+      <span class="req">Container</span>
+      <select name="container_type">
+        <?php foreach (CONTAINER_TYPES as $t): ?>
+          <option <?= ($v['container_type'] ?? '') === $t ? 'selected' : '' ?>><?= e($t) ?></option>
+        <?php endforeach; ?>
+      </select>
+    </label>
+    <label>
+      <span class="req">Service</span>
+      <select name="service_type">
+        <?php foreach (SERVICE_TYPES as $t): ?>
+          <option <?= ($v['service_type'] ?? '') === $t ? 'selected' : '' ?>><?= e($t) ?></option>
+        <?php endforeach; ?>
+      </select>
+    </label>
   </div>
 <?php }

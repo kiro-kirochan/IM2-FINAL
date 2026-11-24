@@ -14,11 +14,26 @@ if (is_post()) {
         } catch (PDOException $e) { $err['barangay'] = db_message($e); }
     }
 }
-page_start('Add Barangay', 'zones', ['actions' => head_link('zones/', '← All barangays', 'btn')]); ?>
-<section class="card" style="max-width:520px"><form method="post" novalidate>
-  <?= csrf_field() ?>
-  <label class="f"><span class="req">Barangay</span><input name="barangay" maxlength="100" value="<?= e($v['barangay']) ?>" autofocus><?php if (isset($err['barangay'])): ?><span class="err"><?= e($err['barangay']) ?></span><?php endif; ?></label>
-  <label class="f"><span class="req">Delivery fee (₱)</span><input type="number" step="0.01" min="0" name="delivery_fee" value="<?= e($v['delivery_fee']) ?>"><?php if (isset($err['delivery_fee'])): ?><span class="err"><?= e($err['delivery_fee']) ?></span><?php endif; ?></label>
-  <div class="form-actions"><button class="btn btn-primary">Save barangay</button><a class="btn" href="<?= e(url('zones/')) ?>">Cancel</a></div>
-</form></section>
+page_start('Add Barangay', 'zones', [
+    'actions' => head_link('zones/', '← All barangays', 'secondary outline btn-sm'),
+]); ?>
+<article class="card-narrow">
+  <form method="post" novalidate>
+    <?= csrf_field() ?>
+    <label>
+      <span class="req">Barangay</span>
+      <input name="barangay" maxlength="100" value="<?= e($v['barangay']) ?>" <?= isset($err['barangay']) ? 'aria-invalid="true"' : '' ?> autofocus>
+      <?php if (isset($err['barangay'])): ?><small class="field-error"><?= e($err['barangay']) ?></small><?php endif; ?>
+    </label>
+    <label>
+      <span class="req">Delivery fee (₱)</span>
+      <input type="number" step="0.01" min="0" name="delivery_fee" value="<?= e($v['delivery_fee']) ?>" <?= isset($err['delivery_fee']) ? 'aria-invalid="true"' : '' ?>>
+      <?php if (isset($err['delivery_fee'])): ?><small class="field-error"><?= e($err['delivery_fee']) ?></small><?php endif; ?>
+    </label>
+    <div class="form-actions">
+      <button type="submit">Save barangay</button>
+      <a role="button" class="secondary outline" href="<?= e(url('zones/')) ?>">Cancel</a>
+    </div>
+  </form>
+</article>
 <?php page_end();

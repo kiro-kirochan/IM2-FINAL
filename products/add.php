@@ -19,9 +19,17 @@ if (is_post()) {
         } catch (PDOException $e) { flash('error', db_message($e)); }
     }
 }
-page_start('Add Product', 'products', ['actions' => head_link('products/', '← All products', 'btn')]); ?>
-<section class="card" style="max-width:640px"><form method="post" novalidate>
-  <?= csrf_field() ?><?php render_product_fields($v, $err, true); ?>
-  <div class="form-actions"><button class="btn btn-primary">Save product</button><a class="btn" href="<?= e(url('products/')) ?>">Cancel</a></div>
-</form></section>
+page_start('Add Product', 'products', [
+    'actions' => head_link('products/', '← All products', 'secondary outline btn-sm'),
+]); ?>
+<article class="card-medium">
+  <form method="post" novalidate>
+    <?= csrf_field() ?>
+    <?php render_product_fields($v, $err, true); ?>
+    <div class="form-actions">
+      <button type="submit">Save product</button>
+      <a role="button" class="secondary outline" href="<?= e(url('products/')) ?>">Cancel</a>
+    </div>
+  </form>
+</article>
 <?php page_end();

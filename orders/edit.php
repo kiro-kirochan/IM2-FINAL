@@ -73,39 +73,50 @@ $CD = builder_data($customers, $lines, $o['order_type']);
 page_start('Edit ' . order_label($orderNo), 'orders', [
     'sub' => $o['order_type'] . ' order · Queue #' . $o['queue_no'] . ' · ' . $o['order_status'],
     'scripts' => ['assets/js/order-form.js'],
-    'actions' => head_link('orders/view.php?order_no=' . $orderNo, '← Back to slip', 'btn'),
+    'actions' => head_link('orders/view.php?order_no=' . $orderNo, '← Back to slip', 'secondary outline btn-sm'),
 ]); ?>
 <script>window.CD = <?= json_encode($CD, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) ?>;</script>
 <?php if ($error): ?><div class="flash flash-error"><?= e($error) ?></div><?php endif; ?>
 
 <form method="post" id="orderForm" novalidate>
   <?= csrf_field() ?><input type="hidden" name="order_no" value="<?= $orderNo ?>">
-  <div class="grid g2">
-    <section class="card">
-      <h2>Order details</h2>
-      <p class="note-box">Order type (<b><?= e($o['order_type']) ?></b>) and payments cannot be changed here. Record more payments from the <b>Pay</b> page.
-        Removed items stay in the database, marked as removed.</p>
-      <label class="f"><span class="req">Customer</span>
+  <div class="grid-split">
+    <article>
+      <header><h2>Order details</h2></header>
+      <div class="callout">
+        Order type (<b><?= e($o['order_type']) ?></b>) and recorded payments cannot be modified here. Record additional payments from the <b>Pay</b> page. Removed items stay in the database marked as removed.
+      </div>
+      <label>
+        <span class="req">Customer</span>
         <select name="customer_id" id="customer_id">
           <?php foreach ($customers as $c): ?>
-            <option value="<?= (int)$c['customer_id'] ?>" <?= (int)$form['customer_id'] === (int)$c['customer_id'] ? 'selected' : '' ?>><?= e($c['full_name']) ?><?= $c['barangay'] ? ' — ' . e($c['barangay']) : '' ?></option>
+            <option value="<?= (int)$c['customer_id'] ?>" <?= (int)$form['customer_id'] === (int)$c['customer_id'] ? 'selected' : '' ?>>
+              <?= e($c['full_name']) ?><?= $c['barangay'] ? ' — ' . e($c['barangay']) : '' ?>
+            </option>
           <?php endforeach; ?>
-        </select></label>
-      <div class="note-box" id="deliveryWarn" hidden>⚠ This customer lacks a contact number, street or barangay, which delivery requires.</div>
-      <label class="f"><span>Notes</span><input name="notes" maxlength="255" value="<?= e($form['notes']) ?>"></label>
+        </select>
+      </label>
+      <div class="callout callout-warn" id="deliveryWarn" hidden>
+        This customer lacks a contact number, street, or barangay, which delivery requires.
+      </div>
+      <label>
+        <span>Notes</span>
+        <input name="notes" maxlength="255" value="<?= e($form['notes']) ?>">
+      </label>
       <dl class="facts">
         <dt>Already paid</dt><dd><?= peso($o['total_paid']) ?></dd>
-        <dt>Stub</dt><dd><?= e(stub_label($o['stub_no'])) ?></dd>
+        <dt>Claim stub</dt><dd><?= e(stub_label($o['stub_no'])) ?></dd>
       </dl>
-    </section>
-    <section class="card">
-      <h2>Items</h2>
+    </article>
+
+    <article>
+      <header><h2>Order items</h2></header>
       <?php render_item_builder($products); ?>
-      <div class="form-actions" style="margin-top:16px">
-        <button class="btn btn-primary">Save changes</button>
-        <a class="btn" href="<?= e(url('orders/view.php?order_no=' . $orderNo)) ?>">Cancel</a>
+      <div class="form-actions" style="margin-top:1rem">
+        <button type="submit">Save changes</button>
+        <a role="button" class="secondary outline" href="<?= e(url('orders/view.php?order_no=' . $orderNo)) ?>">Cancel</a>
       </div>
-    </section>
+    </article>
   </div>
 </form>
 <?php page_end();

@@ -1,0 +1,9 @@
+# personal DB passwords / ports
+includes/config.local.php
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log

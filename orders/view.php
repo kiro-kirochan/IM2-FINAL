@@ -34,56 +34,89 @@ $txt[] = $paid ? 'PAID IN FULL (' . ($last['receipt_no'] ?? '') . ')' : 'CLAIM S
 
 page_start(order_label($orderNo), 'orders', [
     'sub' => $o['order_type'] . ' · ' . fdatetime($o['order_date']) . ($o['is_deleted'] ? ' · ARCHIVED' : ''),
-    'actions' => head_link('orders/', '← All orders', 'btn'),
+    'actions' => head_link('orders/', '← All orders', 'secondary outline btn-sm'),
 ]); ?>
 
-<div class="grid g2e">
+<div class="grid-split">
   <div>
-    <section class="card">
-      <h2>Order <?= status_badge($o['order_status']) ?> <?= pay_badge($o['payment_status'], $o['balance']) ?></h2>
+    <article>
+      <header>
+        <h2>Order summary</h2>
+        <div class="row-actions">
+          <?= status_badge($o['order_status']) ?>
+          <?= pay_badge($o['payment_status'], $o['balance']) ?>
+        </div>
+      </header>
       <dl class="facts">
+        <dt>Queue #</dt><dd><span class="ticket">#<?= (int)$o['queue_no'] ?></span></dd>
         <dt>Customer</dt><dd><a href="<?= e(url('customers/view.php?customer_id=' . $o['customer_id'])) ?>"><?= e($o['customer_name']) ?></a><?= $o['contact_number'] ? ' · ' . e($o['contact_number']) : '' ?></dd>
         <?php if ($zoneRow): ?><dt>Deliver to</dt><dd><?= e($zoneRow['street']) ?>, Brgy. <?= e($zoneRow['barangay']) ?></dd><?php endif; ?>
         <?php if ($delivery): ?><dt>Rider</dt><dd><?= e($delivery['rider_name']) ?> (<?= e($delivery['vehicle']) ?>) · <?= e($delivery['delivery_status']) ?></dd><?php endif; ?>
         <?php if ($o['notes']): ?><dt>Notes</dt><dd><?= e($o['notes']) ?></dd><?php endif; ?>
-        <dt>Total</dt><dd><?= peso($o['order_total']) ?></dd>
+        <dt>Order total</dt><dd><?= peso($o['order_total']) ?></dd>
         <dt>Paid / Balance</dt><dd><?= peso($o['total_paid']) ?> / <b><?= peso($o['balance']) ?></b></dd>
       </dl>
-      <div class="form-actions no-print" style="margin-top:14px">
+      <div class="form-actions no-print" style="margin-top:1rem">
         <?php if ($o['balance'] > 0 && $o['order_status'] !== 'Cancelled' && !$o['is_deleted']): ?>
-          <a class="btn btn-aqua" href="<?= e(url('orders/pay.php?order_no=' . $orderNo)) ?>">Record payment</a><?php endif; ?>
-        <?php if ($editable): ?><a class="btn" href="<?= e(url('orders/edit.php?order_no=' . $orderNo)) ?>">Edit order</a><?php endif; ?>
-        <a class="btn" href="<?= e(url('orders/status.php?order_no=' . $orderNo)) ?>">Change status</a>
+          <a role="button" class="btn-sm" href="<?= e(url('orders/pay.php?order_no=' . $orderNo)) ?>">Record payment</a>
+        <?php endif; ?>
+        <?php if ($editable): ?>
+          <a role="button" class="secondary outline btn-sm" href="<?= e(url('orders/edit.php?order_no=' . $orderNo)) ?>">Edit order</a>
+        <?php endif; ?>
+        <a role="button" class="secondary outline btn-sm" href="<?= e(url('orders/status.php?order_no=' . $orderNo)) ?>">Change status</a>
         <?php if ($o['is_deleted']): ?>
-          <?= action_form('actions/restore.php', ['entity' => 'orders', 'id' => $orderNo, 'return' => 'orders/view.php?order_no=' . $orderNo], 'Restore', 'btn btn-sun') ?>
+          <?= action_form('actions/restore.php', ['entity' => 'orders', 'id' => $orderNo, 'return' => 'orders/view.php?order_no=' . $orderNo], 'Restore', 'btn-sm') ?>
         <?php endif; ?>
       </div>
-    </section>
+    </article>
 
-    <section class="card">
-      <h2>Payments</h2>
+    <article class="<?= $payments ? 'table-card' : '' ?>">
+      <header><h2>Payments</h2></header>
       <?php if ($payments): ?>
-      <div class="table-wrap"><table>
-        <thead><tr><th>Receipt</th><th>Paid on</th><th>Mode</th><th class="num">Amount</th><th class="num">Balance after</th></tr></thead>
-        <tbody><?php foreach ($payments as $p): ?>
-          <tr><td><b><?= e($p['receipt_no']) ?></b></td><td class="small"><?= e(fdatetime($p['payment_date'])) ?></td><td><?= e($p['payment_mode']) ?></td>
-              <td class="num"><?= peso($p['amount_paid']) ?></td><td class="num"><?= peso($p['balance_after']) ?></td></tr>
-        <?php endforeach; ?></tbody></table></div>
-      <?php else: ?><p class="muted" style="margin:0">No payment yet — only the claim stub has been issued.</p><?php endif; ?>
-    </section>
+        <div class="overflow-auto">
+          <table>
+            <thead>
+              <tr>
+                <th>Receipt</th>
+                <th>Paid on</th>
+                <th>Mode</th>
+                <th class="num">Amount</th>
+                <th class="num">Balance after</th>
+              </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($payments as $p): ?>
+              <tr>
+                <td><b><?= e($p['receipt_no']) ?></b></td>
+                <td class="small"><?= e(fdatetime($p['payment_date'])) ?></td>
+                <td><?= e($p['payment_mode']) ?></td>
+                <td class="num"><?= peso($p['amount_paid']) ?></td>
+                <td class="num"><?= peso($p['balance_after']) ?></td>
+              </tr>
+            <?php endforeach; ?>
+            </tbody>
+          </table>
+        </div>
+      <?php else: ?>
+        <p class="muted" style="margin-bottom:0">No payment recorded yet — only the claim stub has been issued.</p>
+      <?php endif; ?>
+    </article>
   </div>
 
-  <aside class="tray">
-    <div class="toolbar no-print" style="justify-content:space-between">
-      <div class="pills">
-        <a class="pill <?= $slip === 'full' ? 'on' : '' ?>" href="?order_no=<?= $orderNo ?>&slip=full">Receipt + Claim tab</a>
-        <a class="pill <?= $slip === 'stub' ? 'on' : '' ?>" href="?order_no=<?= $orderNo ?>&slip=stub">Claim stub only</a>
+  <aside class="receipt-panel">
+    <div class="toolbar no-print" style="justify-content:center;margin-bottom:0.85rem">
+      <div class="filter-pills">
+        <a class="<?= $slip === 'full' ? 'on' : '' ?>" href="?order_no=<?= $orderNo ?>&slip=full">Receipt + Claim tab</a>
+        <a class="<?= $slip === 'stub' ? 'on' : '' ?>" href="?order_no=<?= $orderNo ?>&slip=stub">Claim stub only</a>
       </div>
     </div>
 
-    <article class="paper" id="receipt">
-      <div class="c"><span class="t"><?= e(config()['station_name']) ?></span><span><?= e(config()['station_addr']) ?></span><br>
-        <span class="q">QUEUE #<?= (int)$o['queue_no'] ?></span></div>
+    <div class="receipt-paper" id="receipt">
+      <div class="c">
+        <span class="t"><?= e(config()['station_name']) ?></span>
+        <span><?= e(config()['station_addr']) ?></span><br>
+        <span class="q">QUEUE #<?= (int)$o['queue_no'] ?></span>
+      </div>
       <hr>
       <div class="r"><span>Order No.</span><b><?= e(order_label($orderNo)) ?></b></div>
       <div class="r"><span>Stub No.</span><span><?= e(stub_label($o['stub_no'])) ?></span></div>
@@ -96,7 +129,7 @@ page_start(order_label($orderNo), 'orders', [
       <div class="r"><span>Customer</span><span><?= e($o['customer_name']) ?></span></div>
       <?php if ($zoneRow): ?><div class="r"><span>Address</span><span><?= e($zoneRow['street']) ?>, Brgy. <?= e($zoneRow['barangay']) ?></span></div><?php endif; ?>
       <hr>
-      <div class="r" style="color:#6b6753"><span>ITEM</span><span>AMOUNT</span></div>
+      <div class="r" style="color:#64748b"><span>ITEM</span><span>AMOUNT</span></div>
       <?php foreach ($items as $i): ?>
         <div class="r"><span><?= e($i['product_name']) ?></span><b><?= peso($i['qty'] * $i['unit_price_charged']) ?></b></div>
         <div class="sub-i"><?= (int)$i['qty'] ?> × <?= peso($i['unit_price_charged']) ?></div>
@@ -125,11 +158,11 @@ page_start(order_label($orderNo), 'orders', [
       </div>
       <?php endif; ?>
       <p class="foot">Present this tab when collecting or receiving containers.</p>
-    </article>
+    </div>
 
-    <div class="form-actions no-print" style="justify-content:center;margin-top:16px">
-      <button class="btn btn-sun" data-print>Print thermal slip</button>
-      <button class="btn" data-copy="#slipText">Copy as text</button>
+    <div class="form-actions no-print" style="justify-content:center;margin-top:0.9rem">
+      <button type="button" class="btn-sm" data-print>Print thermal slip</button>
+      <button type="button" class="secondary outline btn-sm" data-copy="#slipText">Copy as text</button>
     </div>
     <textarea id="slipText" hidden><?= e(implode("\n", $txt)) ?></textarea>
   </aside>

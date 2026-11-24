@@ -31,25 +31,42 @@ if (!$locked && is_post()) {
     }
 }
 
-page_start('Change Status', 'orders', ['sub' => order_label($orderNo) . ' · ' . $o['customer_name'],
-    'actions' => head_link('orders/', '← All orders', 'btn')]); ?>
+page_start('Change Status', 'orders', [
+    'sub' => order_label($orderNo) . ' · ' . $o['customer_name'],
+    'actions' => head_link('orders/', '← All orders', 'secondary outline btn-sm'),
+]); ?>
 <?php if ($error): ?><div class="flash flash-error"><?= e($error) ?></div><?php endif; ?>
-<section class="card" style="max-width:520px">
-  <p>Current status: <?= status_badge($o['order_status']) ?></p>
+
+<article class="card-narrow">
+  <header>
+    <h2>Order status</h2>
+    <?= status_badge($o['order_status']) ?>
+  </header>
+
   <?php if ($locked): ?>
-    <div class="note-box">This order is finished (<?= e($o['order_status']) ?>), so its status is locked. You can archive it from the Orders list if you no longer want to see it.</div>
+    <div class="callout" style="margin-bottom:0">
+      This order is finished (<b><?= e($o['order_status']) ?></b>), so its status is locked. You can archive it from the Orders list if you no longer want to display it.
+    </div>
   <?php else: ?>
-    <?php if ($isDelivery): ?><div class="note-box">Sending the order out, marking it delivered or failed is done on the <a href="<?= e(url('deliveries/')) ?>">Delivery Board</a>, so the rider and time are recorded.</div><?php endif; ?>
+    <?php if ($isDelivery): ?>
+      <div class="callout">
+        Dispatching an order or marking it delivered/failed is handled on the <a href="<?= e(url('deliveries/')) ?>">Delivery Board</a> so the rider and trip times are recorded.
+      </div>
+    <?php endif; ?>
     <form method="post">
       <?= csrf_field() ?><input type="hidden" name="order_no" value="<?= $orderNo ?>">
-      <label class="f"><span>New status</span>
+      <label>
+        <span>New status</span>
         <select name="status">
           <?php foreach ($options as $s): ?><option <?= $s === $o['order_status'] ? 'selected' : '' ?>><?= e($s) ?></option><?php endforeach; ?>
-        </select></label>
-      <p class="muted small">“Cancelled” stops further payments and the order cannot be re-opened.</p>
-      <div class="form-actions"><button class="btn btn-primary">Update status</button>
-        <a class="btn" href="<?= e(url('orders/view.php?order_no=' . $orderNo)) ?>">Cancel</a></div>
+        </select>
+        <small class="muted">“Cancelled” stops further payments and cannot be reopened.</small>
+      </label>
+      <div class="form-actions">
+        <button type="submit">Update status</button>
+        <a role="button" class="secondary outline" href="<?= e(url('orders/view.php?order_no=' . $orderNo)) ?>">Cancel</a>
+      </div>
     </form>
   <?php endif; ?>
-</section>
+</article>
 <?php page_end();

@@ -38,10 +38,10 @@ document.addEventListener('DOMContentLoaded', () => {
       li.className = 'line';
       li.innerHTML = `<div><b></b><small class="muted"></small></div>
         <div class="ctl">
-          <button type="button" class="step" data-act="minus" aria-label="less">−</button>
-          <button type="button" class="step" data-act="plus" aria-label="more">+</button>
+          <button type="button" class="step" data-act="minus" aria-label="Decrease quantity">−</button>
+          <button type="button" class="step" data-act="plus" aria-label="Increase quantity">+</button>
           <span class="amt"></span>
-          <button type="button" class="btn btn-sm btn-ghost" data-act="rm" title="Remove">✕</button>
+          <button type="button" class="secondary outline btn-xs" data-act="rm" title="Remove item">✕</button>
         </div>`;
       li.querySelector('b').textContent = p.name;
       li.querySelector('small').textContent = `${qty} × ${peso(p.price)}`;

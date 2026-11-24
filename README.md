@@ -103,5 +103,4 @@ After merging: `git checkout main && git pull`.
 * Never commit `includes/config.local.php` (already in `.gitignore`).
 
 ## 4. Customizing the look
-All colors, fonts and shadows are variables at the top of `assets/css/app.css`
-(`--aqua`, `--coral`, `--paper`, `--head` …). Change them to give your group's own identity.
+The interface is built on **Pico.css v2** (`assets/css/pico.min.css`, Slate + Azure light theme) paired with a compact layout and thermal-receipt layer in `assets/css/app.css`. Adjust the `--pico-*` CSS variables at the top of `assets/css/app.css` to customize typography scale, spacing, or accent colors.
